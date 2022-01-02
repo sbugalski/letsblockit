@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/volatiletech/authboss/v3"
+
 	"github.com/DataDog/datadog-go/v5/statsd"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -63,6 +65,7 @@ type Server struct {
 	pages   PageRenderer
 	store   db.Store
 	statsd  statsd.ClientInterface
+	auth    *authboss.Authboss
 }
 
 func NewServer(options *Options) *Server {
@@ -90,6 +93,12 @@ func (s *Server) Start() error {
 		go collectStats(s.echo.Logger, s.store, dsd)
 	} else {
 		s.statsd = &statsd.NoOpClient{}
+	}
+
+	var err error
+	s.auth, err = buildAuth(s.store)
+	if err != nil {
+		return err
 	}
 
 	s.pages.RegisterHelpers(buildHelpers(s.echo, s.assets.hash))
@@ -123,6 +132,8 @@ func (s *Server) setupRouter() {
 		"/":            "/filters",
 		"/about":       "/help/about",
 	}))
+
+	s.echo.Any("/auth", echo.WrapHandler(http.StripPrefix(authPrefix, s.auth.Config.Core.Router)))
 
 	anon := s.echo.Group("")
 	anon.GET("/assets/*", s.assets.serve)

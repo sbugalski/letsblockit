@@ -27,3 +27,17 @@ type FilterList struct {
 	CreatedAt  time.Time
 	Downloaded bool
 }
+
+type User struct {
+	ID               int32
+	Uuid             uuid.UUID
+	CreatedAt        time.Time
+	Email            string
+	EmailConfirmed   bool
+	PasswordHash     sql.NullString
+	ConfirmSelector  sql.NullString
+	ConfirmVerifier  sql.NullString
+	RecoverySelector sql.NullString
+	RecoveryVerifier sql.NullString
+	RecoveryExpiry   sql.NullTime
+}

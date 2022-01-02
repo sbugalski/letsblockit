@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -42,6 +43,9 @@ type mockStore struct {
 
 func (m mockStore) RunTx(e echo.Context, f db.TxFunc) error {
 	return f(e.Request().Context(), m)
+}
+func (m mockStore) RunCtxTx(c context.Context, f db.TxFunc) error {
+	return f(c, m)
 }
 
 type pageDataMatcher struct {
@@ -99,9 +103,14 @@ func (s *ServerTestSuite) SetupTest() {
 		s.NoError(err)
 	}))
 
+	store := &mockStore{qm}
+	auth, err := buildAuth(store)
+	s.NoError(err)
+
 	s.user = uuid.New()
 	s.server = &Server{
 		assets: nil,
+		auth:   auth,
 		echo:   echo.New(),
 		options: &Options{
 			KratosURL: s.kratosServer.URL,
@@ -109,7 +118,7 @@ func (s *ServerTestSuite) SetupTest() {
 		},
 		filters: fm,
 		pages:   pm,
-		store:   &mockStore{qm},
+		store:   store,
 		statsd:  &statsd.NoOpClient{},
 	}
 	s.server.setupRouter()

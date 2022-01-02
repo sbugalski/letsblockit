@@ -5,6 +5,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
@@ -68,6 +69,36 @@ func (q *Queries) CreateListForUser(ctx context.Context, userID uuid.UUID) (uuid
 	var token uuid.UUID
 	err := row.Scan(&token)
 	return token, err
+}
+
+const createUser = `-- name: CreateUser :exec
+INSERT INTO users (email, email_confirmed, password_hash, confirm_selector, confirm_verifier, recovery_selector, recovery_verifier, recovery_expiry)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+`
+
+type CreateUserParams struct {
+	Email            string
+	EmailConfirmed   bool
+	PasswordHash     sql.NullString
+	ConfirmSelector  sql.NullString
+	ConfirmVerifier  sql.NullString
+	RecoverySelector sql.NullString
+	RecoveryVerifier sql.NullString
+	RecoveryExpiry   sql.NullTime
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
+	_, err := q.db.Exec(ctx, createUser,
+		arg.Email,
+		arg.EmailConfirmed,
+		arg.PasswordHash,
+		arg.ConfirmSelector,
+		arg.ConfirmVerifier,
+		arg.RecoverySelector,
+		arg.RecoveryVerifier,
+		arg.RecoveryExpiry,
+	)
+	return err
 }
 
 const deleteInstanceForUserAndFilter = `-- name: DeleteInstanceForUserAndFilter :exec
@@ -222,6 +253,32 @@ func (q *Queries) GetStats(ctx context.Context) (GetStatsRow, error) {
 	return i, err
 }
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, uuid, created_at, email, email_confirmed, password_hash, confirm_selector, confirm_verifier, recovery_selector, recovery_verifier, recovery_expiry
+FROM users
+where email = $1
+limit 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.CreatedAt,
+		&i.Email,
+		&i.EmailConfirmed,
+		&i.PasswordHash,
+		&i.ConfirmSelector,
+		&i.ConfirmVerifier,
+		&i.RecoverySelector,
+		&i.RecoveryVerifier,
+		&i.RecoveryExpiry,
+	)
+	return i, err
+}
+
 const hasUserDownloadedList = `-- name: HasUserDownloadedList :one
 SELECT downloaded
 FROM filter_lists
@@ -280,5 +337,40 @@ type UpdateInstanceForUserAndFilterParams struct {
 
 func (q *Queries) UpdateInstanceForUserAndFilter(ctx context.Context, arg UpdateInstanceForUserAndFilterParams) error {
 	_, err := q.db.Exec(ctx, updateInstanceForUserAndFilter, arg.UserID, arg.FilterName, arg.Params)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET password_hash     = $1,
+    email_confirmed   = $2,
+    confirm_selector  = $3,
+    confirm_verifier  = $4,
+    recovery_selector = $5,
+    recovery_verifier = $6,
+    recovery_expiry   = $7
+WHERE email = $1
+`
+
+type UpdateUserParams struct {
+	PasswordHash     sql.NullString
+	EmailConfirmed   bool
+	ConfirmSelector  sql.NullString
+	ConfirmVerifier  sql.NullString
+	RecoverySelector sql.NullString
+	RecoveryVerifier sql.NullString
+	RecoveryExpiry   sql.NullTime
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.PasswordHash,
+		arg.EmailConfirmed,
+		arg.ConfirmSelector,
+		arg.ConfirmVerifier,
+		arg.RecoverySelector,
+		arg.RecoveryVerifier,
+		arg.RecoveryExpiry,
+	)
 	return err
 }

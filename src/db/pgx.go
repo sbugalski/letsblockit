@@ -14,6 +14,7 @@ var NotFound = pgx.ErrNoRows
 type Store interface {
 	Querier
 	RunTx(e echo.Context, f TxFunc) error
+	RunCtxTx(c context.Context, f TxFunc) error
 }
 
 type TxFunc func(context.Context, Querier) error
@@ -24,7 +25,10 @@ type pgxStore struct {
 }
 
 func (d *pgxStore) RunTx(e echo.Context, f TxFunc) error {
-	c := e.Request().Context()
+	return d.RunCtxTx(e.Request().Context(), f)
+}
+
+func (d *pgxStore) RunCtxTx(c context.Context, f TxFunc) error {
 	return d.pool.BeginFunc(c, func(tx pgx.Tx) error {
 		return f(c, New(tx))
 	})

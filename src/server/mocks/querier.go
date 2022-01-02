@@ -96,6 +96,20 @@ func (mr *MockQuerierMockRecorder) CreateListForUser(ctx, userID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateListForUser", reflect.TypeOf((*MockQuerier)(nil).CreateListForUser), ctx, userID)
 }
 
+// CreateUser mocks base method.
+func (m *MockQuerier) CreateUser(ctx context.Context, arg db.CreateUserParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", ctx, arg)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockQuerierMockRecorder) CreateUser(ctx, arg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockQuerier)(nil).CreateUser), ctx, arg)
+}
+
 // DeleteInstanceForUserAndFilter mocks base method.
 func (m *MockQuerier) DeleteInstanceForUserAndFilter(ctx context.Context, arg db.DeleteInstanceForUserAndFilterParams) error {
 	m.ctrl.T.Helper()
@@ -200,6 +214,21 @@ func (mr *MockQuerierMockRecorder) GetStats(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStats", reflect.TypeOf((*MockQuerier)(nil).GetStats), ctx)
 }
 
+// GetUserByEmail mocks base method.
+func (m *MockQuerier) GetUserByEmail(ctx context.Context, email string) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByEmail", ctx, email)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByEmail indicates an expected call of GetUserByEmail.
+func (mr *MockQuerierMockRecorder) GetUserByEmail(ctx, email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockQuerier)(nil).GetUserByEmail), ctx, email)
+}
+
 // HasUserDownloadedList mocks base method.
 func (m *MockQuerier) HasUserDownloadedList(ctx context.Context, userID uuid.UUID) (bool, error) {
 	m.ctrl.T.Helper()
@@ -255,4 +284,18 @@ func (m *MockQuerier) UpdateInstanceForUserAndFilter(ctx context.Context, arg db
 func (mr *MockQuerierMockRecorder) UpdateInstanceForUserAndFilter(ctx, arg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInstanceForUserAndFilter", reflect.TypeOf((*MockQuerier)(nil).UpdateInstanceForUserAndFilter), ctx, arg)
+}
+
+// UpdateUser mocks base method.
+func (m *MockQuerier) UpdateUser(ctx context.Context, arg db.UpdateUserParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUser", ctx, arg)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUser indicates an expected call of UpdateUser.
+func (mr *MockQuerierMockRecorder) UpdateUser(ctx, arg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockQuerier)(nil).UpdateUser), ctx, arg)
 }

@@ -14,6 +14,7 @@ type Querier interface {
 	CountListsForUser(ctx context.Context, userID uuid.UUID) (int64, error)
 	CreateInstanceForUserAndFilter(ctx context.Context, arg CreateInstanceForUserAndFilterParams) error
 	CreateListForUser(ctx context.Context, userID uuid.UUID) (uuid.UUID, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) error
 	DeleteInstanceForUserAndFilter(ctx context.Context, arg DeleteInstanceForUserAndFilterParams) error
 	GetActiveFiltersForUser(ctx context.Context, userID uuid.UUID) ([]string, error)
 	GetInstanceForUserAndFilter(ctx context.Context, arg GetInstanceForUserAndFilterParams) (pgtype.JSONB, error)
@@ -21,10 +22,12 @@ type Querier interface {
 	GetListForToken(ctx context.Context, token uuid.UUID) (GetListForTokenRow, error)
 	GetListForUser(ctx context.Context, userID uuid.UUID) (GetListForUserRow, error)
 	GetStats(ctx context.Context) (GetStatsRow, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 	HasUserDownloadedList(ctx context.Context, userID uuid.UUID) (bool, error)
 	MarkListDownloaded(ctx context.Context, id int32) error
 	RotateListToken(ctx context.Context, arg RotateListTokenParams) error
 	UpdateInstanceForUserAndFilter(ctx context.Context, arg UpdateInstanceForUserAndFilterParams) error
+	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 }
 
 var _ Querier = (*Queries)(nil)

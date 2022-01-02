@@ -1,3 +1,24 @@
+-- name: GetUserByEmail :one
+SELECT *
+FROM users
+where email = $1
+limit 1;
+
+-- name: CreateUser :exec
+INSERT INTO users (email, email_confirmed, password_hash, confirm_selector, confirm_verifier, recovery_selector, recovery_verifier, recovery_expiry)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8);
+
+-- name: UpdateUser :exec
+UPDATE users
+SET password_hash     = $1,
+    email_confirmed   = $2,
+    confirm_selector  = $3,
+    confirm_verifier  = $4,
+    recovery_selector = $5,
+    recovery_verifier = $6,
+    recovery_expiry   = $7
+WHERE email = $1;
+
 -- name: CreateListForUser :one
 INSERT INTO filter_lists (user_id)
 VALUES ($1)

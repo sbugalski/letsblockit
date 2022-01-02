@@ -1,5 +1,22 @@
 CREATE EXTENSION IF NOT EXISTS hstore;
 
+CREATE TABLE users
+(
+    id                SERIAL PRIMARY KEY,
+    uuid              uuid      NOT NULL DEFAULT gen_random_uuid(),
+    created_at        timestamp NOT NULL DEFAULT NOW(),
+    email             text      NOT NULL,
+    email_confirmed   bool      NOT NULL DEFAULT FALSE,
+    password_hash     text,
+    confirm_selector  text,
+    confirm_verifier  text,
+    recovery_selector text,
+    recovery_verifier text,
+    recovery_expiry   timestamp
+);
+
+CREATE UNIQUE INDEX idx_user_by_email ON users USING btree (email);
+
 CREATE TABLE filter_lists
 (
     id         SERIAL PRIMARY KEY,
