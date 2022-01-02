@@ -1,0 +1,56 @@
+<h2>Get started with Bootstrap</h2>
+<p class="fs-5 col-md-8">Quickly and easily get started with Bootstrap's compiled, production-ready files with this
+    barebones example featuring some basic HTML and helpful links. Download all our examples to get started.</p>
+
+<div class="mb-5">
+    <a href="/docs/5.1/examples/" class="btn btn-primary btn-lg px-4">Download examples</a>
+</div>
+
+<div id="tagsCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {{#each slides}}
+            <div class="carousel-item ps-5 pe-5 {{#if (eq 0 @index)}}active{{/if}}">
+                <h3 class="h1 ms-auto"><i class="{{Icon}} me-2 text-primary"></i></h3>
+                <h3 class="ms-auto">{{Title}}</h3>
+                <ul class="list-group list-group-flush">
+                    {{#each Filters}}
+                        <li class="list-group-item">
+                            <a class="stretched-link" href="{{href "view-filter" name}}">{{title}}</a></li>
+                    {{/each}}
+                    {{#each Padding}}
+                        <li class="list-group-item">&nbsp;</li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/each}}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#tagsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#tagsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<hr class="col-3 col-md-2 mb-5">
+
+<div class="row g-5">
+    <div class="col-md-6">
+        <h2>Supported websites</h2>
+        <p>Check out <a href="{{href "list-filters" ""}}">the full list of filters</a>, or click in a tag below:</p>
+        <p>{{#each filter_tags}}{{{tag this}}}{{/each}}</p>
+    </div>
+
+    <div class="col-md-6">
+        <h2>Guides</h2>
+        <p>Read more about the project:</p>
+        <ul class="icon-list">
+            <li><a href="/docs/5.1/getting-started/introduction/">Bootstrap quick start guide</a></li>
+            <li><a href="/docs/5.1/getting-started/webpack/">Bootstrap Webpack guide</a></li>
+            <li><a href="/docs/5.1/getting-started/parcel/">Bootstrap Parcel guide</a></li>
+            <li><a href="/docs/5.1/getting-started/contribute/">Contributing to Bootstrap</a></li>
+        </ul>
+    </div>
+</div>
