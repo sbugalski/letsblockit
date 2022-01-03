@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/DataDog/datadog-go/v5/statsd"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/gorilla/securecookie"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -19,6 +21,8 @@ import (
 )
 
 var (
+	hashKey        = securecookie.GenerateRandomKey(32)
+	blockKey       = securecookie.GenerateRandomKey(32)
 	verifiedCookie = &http.Cookie{
 		Name:  "ory_session_verified",
 		Value: "true",
@@ -103,8 +107,12 @@ func (s *ServerTestSuite) SetupTest() {
 		s.NoError(err)
 	}))
 
+	s.expectQ.GetCookieKeys(gomock.Any()).Return(db.GetCookieKeysRow{
+		HashKey:  hashKey,
+		BlockKey: blockKey,
+	}, nil)
 	store := &mockStore{qm}
-	auth, err := buildAuth(store)
+	auth, err := buildAuth(store, url.URL{Scheme: "http", Host: "localhost"})
 	s.NoError(err)
 
 	s.user = uuid.New()

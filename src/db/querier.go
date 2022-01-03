@@ -17,6 +17,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	DeleteInstanceForUserAndFilter(ctx context.Context, arg DeleteInstanceForUserAndFilterParams) error
 	GetActiveFiltersForUser(ctx context.Context, userID uuid.UUID) ([]string, error)
+	GetCookieKeys(ctx context.Context) (GetCookieKeysRow, error)
 	GetInstanceForUserAndFilter(ctx context.Context, arg GetInstanceForUserAndFilterParams) (pgtype.JSONB, error)
 	GetInstancesForList(ctx context.Context, filterListID int32) ([]GetInstancesForListRow, error)
 	GetListForToken(ctx context.Context, token uuid.UUID) (GetListForTokenRow, error)
@@ -26,6 +27,7 @@ type Querier interface {
 	HasUserDownloadedList(ctx context.Context, userID uuid.UUID) (bool, error)
 	MarkListDownloaded(ctx context.Context, id int32) error
 	RotateListToken(ctx context.Context, arg RotateListTokenParams) error
+	SetCookieKeys(ctx context.Context, arg SetCookieKeysParams) error
 	UpdateInstanceForUserAndFilter(ctx context.Context, arg UpdateInstanceForUserAndFilterParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 }

@@ -139,6 +139,21 @@ func (mr *MockQuerierMockRecorder) GetActiveFiltersForUser(ctx, userID interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActiveFiltersForUser", reflect.TypeOf((*MockQuerier)(nil).GetActiveFiltersForUser), ctx, userID)
 }
 
+// GetCookieKeys mocks base method.
+func (m *MockQuerier) GetCookieKeys(ctx context.Context) (db.GetCookieKeysRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCookieKeys", ctx)
+	ret0, _ := ret[0].(db.GetCookieKeysRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCookieKeys indicates an expected call of GetCookieKeys.
+func (mr *MockQuerierMockRecorder) GetCookieKeys(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCookieKeys", reflect.TypeOf((*MockQuerier)(nil).GetCookieKeys), ctx)
+}
+
 // GetInstanceForUserAndFilter mocks base method.
 func (m *MockQuerier) GetInstanceForUserAndFilter(ctx context.Context, arg db.GetInstanceForUserAndFilterParams) (pgtype.JSONB, error) {
 	m.ctrl.T.Helper()
@@ -270,6 +285,20 @@ func (m *MockQuerier) RotateListToken(ctx context.Context, arg db.RotateListToke
 func (mr *MockQuerierMockRecorder) RotateListToken(ctx, arg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RotateListToken", reflect.TypeOf((*MockQuerier)(nil).RotateListToken), ctx, arg)
+}
+
+// SetCookieKeys mocks base method.
+func (m *MockQuerier) SetCookieKeys(ctx context.Context, arg db.SetCookieKeysParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetCookieKeys", ctx, arg)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetCookieKeys indicates an expected call of SetCookieKeys.
+func (mr *MockQuerierMockRecorder) SetCookieKeys(ctx, arg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCookieKeys", reflect.TypeOf((*MockQuerier)(nil).SetCookieKeys), ctx, arg)
 }
 
 // UpdateInstanceForUserAndFilter mocks base method.

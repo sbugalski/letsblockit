@@ -143,6 +143,24 @@ func (q *Queries) GetActiveFiltersForUser(ctx context.Context, userID uuid.UUID)
 	return items, nil
 }
 
+const getCookieKeys = `-- name: GetCookieKeys :one
+SELECT hash_key,block_key
+FROM cookie_keys
+LIMIT 1
+`
+
+type GetCookieKeysRow struct {
+	HashKey  []byte
+	BlockKey []byte
+}
+
+func (q *Queries) GetCookieKeys(ctx context.Context) (GetCookieKeysRow, error) {
+	row := q.db.QueryRow(ctx, getCookieKeys)
+	var i GetCookieKeysRow
+	err := row.Scan(&i.HashKey, &i.BlockKey)
+	return i, err
+}
+
 const getInstanceForUserAndFilter = `-- name: GetInstanceForUserAndFilter :one
 SELECT params
 FROM filter_instances
@@ -256,8 +274,8 @@ func (q *Queries) GetStats(ctx context.Context) (GetStatsRow, error) {
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, uuid, created_at, email, email_confirmed, password_hash, confirm_selector, confirm_verifier, recovery_selector, recovery_verifier, recovery_expiry
 FROM users
-where email = $1
-limit 1
+WHERE email = $1
+LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -319,6 +337,21 @@ type RotateListTokenParams struct {
 
 func (q *Queries) RotateListToken(ctx context.Context, arg RotateListTokenParams) error {
 	_, err := q.db.Exec(ctx, rotateListToken, arg.UserID, arg.Token)
+	return err
+}
+
+const setCookieKeys = `-- name: SetCookieKeys :exec
+INSERT INTO cookie_keys (hash_key,block_key)
+VALUES ($1,$2)
+`
+
+type SetCookieKeysParams struct {
+	HashKey  []byte
+	BlockKey []byte
+}
+
+func (q *Queries) SetCookieKeys(ctx context.Context, arg SetCookieKeysParams) error {
+	_, err := q.db.Exec(ctx, setCookieKeys, arg.HashKey, arg.BlockKey)
 	return err
 }
 

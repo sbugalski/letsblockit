@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -29,14 +30,15 @@ const loggerFormat = `{"http":{"host":"${host}","remote_ip":"${remote_ip}",` +
 	`"bytes_in":${bytes_in},"bytes_out":${bytes_out}}}` + "\n"
 
 type Options struct {
-	Address      string `default:"127.0.0.1:8765" help:"address to listen to"`
-	Debug        bool   `help:"log with debug level"`
-	DryRun       bool   `arg:"--dry-run" help:"instantiate all components and exit"`
-	KratosURL    string `default:"http://localhost:4000/.ory" help:"url of the kratos API, defaults to using local proxy"`
-	Reload       bool   `help:"reload frontend when the backend restarts"`
-	Statsd       string `help:"address to send statsd metrics to"`
-	DatabaseName string `default:"letsblockit" help:"psql database name to use"`
-	DatabaseHost string `default:"/var/run/postgresql" help:"psql host to connect to"`
+	Address      string  `default:"127.0.0.1:8765" help:"address to listen to"`
+	RootUrl      url.URL `default:"http://localhost:8765/"`
+	Debug        bool    `help:"log with debug level"`
+	DryRun       bool    `arg:"--dry-run" help:"instantiate all components and exit"`
+	KratosURL    string  `default:"http://localhost:4000/.ory" help:"url of the kratos API, defaults to using local proxy"`
+	Reload       bool    `help:"reload frontend when the backend restarts"`
+	Statsd       string  `help:"address to send statsd metrics to"`
+	DatabaseName string  `default:"letsblockit" help:"psql database name to use"`
+	DatabaseHost string  `default:"/var/run/postgresql" help:"psql host to connect to"`
 	silent       bool
 }
 
@@ -80,7 +82,12 @@ func (s *Server) Start() error {
 		func(_ []error) { s.assets = loadAssets() },
 		func(errs []error) { s.pages, errs[0] = pages.LoadPages() },
 		func(errs []error) { s.filters, errs[0] = filters.LoadFilters() },
-		func(errs []error) { s.store, errs[0] = db.Connect(s.options.DatabaseHost, s.options.DatabaseName) },
+		func(errs []error) {
+			s.store, errs[0] = db.Connect(s.options.DatabaseHost, s.options.DatabaseName)
+			if errs[0] == nil {
+				s.auth, errs[0] = buildAuth(s.store, s.options.RootUrl)
+			}
+		},
 	})
 
 	if s.options.Statsd != "" {
@@ -93,12 +100,6 @@ func (s *Server) Start() error {
 		go collectStats(s.echo.Logger, s.store, dsd)
 	} else {
 		s.statsd = &statsd.NoOpClient{}
-	}
-
-	var err error
-	s.auth, err = buildAuth(s.store)
-	if err != nil {
-		return err
 	}
 
 	s.pages.RegisterHelpers(buildHelpers(s.echo, s.assets.hash))

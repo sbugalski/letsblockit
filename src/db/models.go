@@ -10,6 +10,13 @@ import (
 	"github.com/jackc/pgtype"
 )
 
+type CookieKey struct {
+	ID        int32
+	CreatedAt time.Time
+	HashKey   []byte
+	BlockKey  []byte
+}
+
 type FilterInstance struct {
 	ID           int32
 	UserID       uuid.UUID

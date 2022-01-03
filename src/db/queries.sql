@@ -1,8 +1,17 @@
+-- name: GetCookieKeys :one
+SELECT hash_key,block_key
+FROM cookie_keys
+LIMIT 1;
+
+-- name: SetCookieKeys :exec
+INSERT INTO cookie_keys (hash_key,block_key)
+VALUES ($1,$2);
+
 -- name: GetUserByEmail :one
 SELECT *
 FROM users
-where email = $1
-limit 1;
+WHERE email = $1
+LIMIT 1;
 
 -- name: CreateUser :exec
 INSERT INTO users (email, email_confirmed, password_hash, confirm_selector, confirm_verifier, recovery_selector, recovery_verifier, recovery_expiry)

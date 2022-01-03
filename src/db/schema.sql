@@ -1,5 +1,13 @@
 CREATE EXTENSION IF NOT EXISTS hstore;
 
+CREATE TABLE cookie_keys
+(
+    id         SERIAL PRIMARY KEY,
+    created_at timestamp NOT NULL DEFAULT NOW(),
+    hash_key   bytea     NOT NULL,
+    block_key  bytea     NOT NULL
+);
+
 CREATE TABLE users
 (
     id                SERIAL PRIMARY KEY,
