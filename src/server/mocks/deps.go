@@ -63,6 +63,21 @@ func (mr *MockPageRendererMockRecorder) Render(c, name, data interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Render", reflect.TypeOf((*MockPageRenderer)(nil).Render), c, name, data)
 }
 
+// RenderRaw mocks base method.
+func (m *MockPageRenderer) RenderRaw(name string, data *pages.Context) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RenderRaw", name, data)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RenderRaw indicates an expected call of RenderRaw.
+func (mr *MockPageRendererMockRecorder) RenderRaw(name, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenderRaw", reflect.TypeOf((*MockPageRenderer)(nil).RenderRaw), name, data)
+}
+
 // RenderWithSidebar mocks base method.
 func (m *MockPageRenderer) RenderWithSidebar(c echo.Context, name, sidebar string, data *pages.Context) error {
 	m.ctrl.T.Helper()

@@ -10,6 +10,7 @@ import (
 
 type PageRenderer interface {
 	RegisterHelpers(helpers map[string]interface{})
+	RenderRaw(name string, data *pages.Context) ([]byte, error)
 	Render(c echo.Context, name string, data *pages.Context) error
 	RenderWithSidebar(c echo.Context, name, sidebar string, data *pages.Context) error
 }

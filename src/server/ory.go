@@ -109,6 +109,7 @@ func (u *oryUser) IsActive() bool {
 
 // buildOryMiddleware tries to resolve an Ory Cloud session from the cookies.
 // If it succeeds, a "user" value is added to the context for use by handlers.
+//nolint:unused
 func (s *Server) buildOryMiddleware() echo.MiddlewareFunc {
 	endpoint := s.options.KratosURL + oryWhoamiPath
 

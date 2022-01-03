@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/DataDog/datadog-go/v5/statsd"
@@ -111,14 +110,10 @@ func (s *ServerTestSuite) SetupTest() {
 		HashKey:  hashKey,
 		BlockKey: blockKey,
 	}, nil)
-	store := &mockStore{qm}
-	auth, err := buildAuth(store, url.URL{Scheme: "http", Host: "localhost"})
-	s.NoError(err)
 
 	s.user = uuid.New()
 	s.server = &Server{
 		assets: nil,
-		auth:   auth,
 		echo:   echo.New(),
 		options: &Options{
 			KratosURL: s.kratosServer.URL,
@@ -126,9 +121,10 @@ func (s *ServerTestSuite) SetupTest() {
 		},
 		filters: fm,
 		pages:   pm,
-		store:   store,
+		store:   &mockStore{qm},
 		statsd:  &statsd.NoOpClient{},
 	}
+	s.NoError(s.server.setupAuth())
 	s.server.setupRouter()
 }
 

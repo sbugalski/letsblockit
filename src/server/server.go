@@ -10,12 +10,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/volatiletech/authboss/v3"
-
 	"github.com/DataDog/datadog-go/v5/statsd"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/volatiletech/authboss/v3"
+	_ "github.com/volatiletech/authboss/v3/auth"
+	_ "github.com/volatiletech/authboss/v3/register"
 	"github.com/xvello/letsblockit/src/db"
 	"github.com/xvello/letsblockit/src/filters"
 	"github.com/xvello/letsblockit/src/pages"
@@ -84,11 +85,12 @@ func (s *Server) Start() error {
 		func(errs []error) { s.filters, errs[0] = filters.LoadFilters() },
 		func(errs []error) {
 			s.store, errs[0] = db.Connect(s.options.DatabaseHost, s.options.DatabaseName)
-			if errs[0] == nil {
-				s.auth, errs[0] = buildAuth(s.store, s.options.RootUrl)
-			}
 		},
 	})
+
+	if err := s.setupAuth(); err != nil {
+		return err
+	}
 
 	if s.options.Statsd != "" {
 		dsd, err := statsd.New(s.options.Statsd)
@@ -134,19 +136,14 @@ func (s *Server) setupRouter() {
 		"/about":       "/help/about",
 	}))
 
-	s.echo.Any("/auth", echo.WrapHandler(http.StripPrefix(authPrefix, s.auth.Config.Core.Router)))
+	s.echo.GET("/assets/:type", s.assets.serve)
+	s.echo.GET("/list/:token", s.renderList).Name = "render-filterlist"
+	s.echo.POST("/filters/:name/render", s.viewFilterRender).Name = "view-filter-render"
+	s.echo.GET("/should-reload", shouldReload)
 
-	anon := s.echo.Group("")
-	anon.GET("/assets/*", s.assets.serve)
-	anon.GET("/list/:token", s.renderList).Name = "render-filterlist"
-	anon.POST("/filters/:name/render", s.viewFilterRender).Name = "view-filter-render"
-	anon.GET("/should-reload", shouldReload)
-
-	withAuth := s.echo.Group("")
-	if s.options.KratosURL != "" {
-		withAuth.Use(s.buildOryMiddleware())
-	}
-
+	withAuth := s.echo.Group("", echo.WrapMiddleware(s.auth.LoadClientStateMiddleware))
+	withAuth.GET(authPagePrefix+"/:type", s.buildAuthHandler()).Name = "auth-form"
+	withAuth.POST(authPagePrefix+"/:type", s.buildAuthHandler()).Name = "auth-post"
 	withAuth.GET("/help", s.helpPages).Name = "help-main"
 	withAuth.GET("/help/:page", s.helpPages).Name = "help"
 
@@ -174,7 +171,7 @@ func shouldReload(c echo.Context) error {
 	if _, err := fmt.Fprintln(c.Response(), "retry:1000"); err != nil {
 		return nil
 	}
-	c.Response().Flush()
+	//c.Response().Flush()
 
 	// Block indefinitely to keep the SSE open
 	<-c.Request().Context().Done()

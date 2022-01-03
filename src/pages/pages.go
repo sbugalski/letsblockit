@@ -111,11 +111,11 @@ func (t *Pages) RegisterHelpers(helpers map[string]interface{}) {
 	}
 }
 
-func (t *Pages) Render(c echo.Context, name string, data *Context) error {
+func (t *Pages) RenderRaw(name string, data *Context) ([]byte, error) {
 	var found bool
 	data.Page, found = t.pages[name]
 	if !found {
-		return echo.NewHTTPError(http.StatusNotFound, "template not found: "+name)
+		return nil, echo.NewHTTPError(http.StatusNotFound, "template not found: "+name)
 	}
 	tpl := t.main
 	if data.NakedContent {
@@ -123,9 +123,17 @@ func (t *Pages) Render(c echo.Context, name string, data *Context) error {
 	}
 	buf := new(bytes.Buffer)
 	if err := tpl.Execute(buf, data); err != nil {
-		return err
+		return nil, err
 	}
-	return c.HTMLBlob(http.StatusOK, buf.Bytes())
+	return buf.Bytes(), nil
+}
+
+func (t *Pages) Render(c echo.Context, name string, data *Context) error {
+	b, err := t.RenderRaw(name, data)
+	if err != nil {
+		return nil
+	}
+	return c.HTMLBlob(http.StatusOK, b)
 }
 
 func (t *Pages) RenderWithSidebar(c echo.Context, name, sidebar string, data *Context) error {

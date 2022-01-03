@@ -1,0 +1,70 @@
+<style>
+    div.type-hidden, div.type-submit {
+        margin-bottom: 0 !important;
+    }
+
+    div.type-submit + div.row {
+        margin-top: 2rem !important;
+        padding-top: 2rem !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.125);
+    }
+</style>
+
+<div class="card shadow-sm">
+    {{#if form.Tabs}}
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                {{#each form.Tabs}}
+                    {{#if (eq @root.Data.type Type)}}
+                        <li class="ms-2 nav-item">
+                            <a class="nav-link active" aria-current="true" href="#">{{Title}}</a>
+                        </li>
+                    {{else}}
+                        <li class="ms-2 nav-item">
+                            <a class="nav-link" href="{{href "auth-form" Type}}">{{Title}}</a>
+                        </li>
+                    {{/if}}
+                {{/each}}
+            </ul>
+        </div>
+    {{else}}
+        <div class="card-header">{{settings.title}}</div>
+    {{/if}}
+    {{#with settings.Intro}}
+        <div class="card-body">{{{.}}}</div>
+    {{/with}}
+    <form class="card-body" method="POST" action="{{href "auth-post" form.Target}}">
+        {{#with error}}
+            <div role="alert" class="alert alert-warning">{{.}}</div>
+        {{/with}}
+        {{#each form.Fields}}
+            <div class="form-group mb-3 row type-{{ Type }}">
+                <label class="col-lg-3 col-form-label" for="input-{{ Name }}">
+                    {{#unless (eq Type "submit")}}{{ Label }}{{/unless}}
+                </label>
+                <div class="col-lg-9">
+                    {{#if (eq Type "submit")}}
+                        <button type="submit" class="btn btn-primary"
+                                id="input-{{ Name }}"
+                                name="{{ Name}}">
+                            {{ Label }}
+                        </button>
+                    {{else}}
+                        <input required
+                               id="input-{{ Name }}"
+                               name="{{ Name }}"
+                               type="{{ Type }}"
+                               class="form-control {{#if (lookup @root.Data.errors Name)}}is-invalid{{/if}}"
+                               value="{{lookup @root.Data.preserve Name}}"/>
+                    {{/if}}
+                    {{#with (lookup @root.Data.errors Name)}}
+                        <div class="invalid-feedback">{{ . }}</div>
+                    {{/with}}
+                </div>
+            </div>
+        {{/each}}
+    </form>
+    <div class="card-footer text-end">
+        Read our <a href="{{href "help" "privacy"}}">privacy page</a>.
+    </div>
+</div>
