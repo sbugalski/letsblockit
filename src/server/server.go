@@ -134,7 +134,7 @@ func (s *Server) setupRouter() {
 		withAuth.Use(s.buildOryMiddleware())
 	}
 
-	withAuth.GET("/", s.buildLandingPageHandler()).Name = "landing"
+	withAuth.GET("/", s.landingPageHandler).Name = "landing"
 	withAuth.GET("/help", s.helpPages).Name = "help-main"
 	withAuth.GET("/help/:page", s.helpPages).Name = "help"
 
